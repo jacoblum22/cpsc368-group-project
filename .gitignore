@@ -1,0 +1,39 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Raw and generated data files (large — download manually per README)
+data/raw/games.json
+data/raw/metacritic_games.csv
+data/raw/steamspy_data.csv
+data/raw/steamcharts_data.csv
+data/raw/mendeley_metacritic_joined.csv
+data/clean/
+
+# Oracle credentials — copy config.example.py → config.py and fill in your values
+config.py
+.env
+
+# Generated SQL file (produced by scripts/04_generate_sql.py)
+steam_games.sql
+
+# Visualizations (produced by scripts/05_oracle_queries.py)
+figures/
+
+# Submission archives
+*.zip
+
+# Windows OS artifacts
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# VS Code workspace settings (team members may have different preferences)
+.vscode/
