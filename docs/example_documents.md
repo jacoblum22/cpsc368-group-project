@@ -1,12 +1,11 @@
 # MongoDB Schema — Example Documents
 
-Two example documents showing the full document structure with real data.
+Two example documents showing the full document structure with real data. Each game document embeds player stats and review summary fields most frequently used together in Q1–Q4.
 
 ## Example 1: Hades (Action, Low price tier, 2020)
 
 ```json
 {
-  "_id": "ObjectId(...)",
   "app_id": 1145360,
   "name": "Hades",
   "genre": "Action",
@@ -31,7 +30,6 @@ Two example documents showing the full document structure with real data.
 
 ```json
 {
-  "_id": "ObjectId(...)",
   "app_id": 1086940,
   "name": "Baldur's Gate 3",
   "genre": "Adventure",
