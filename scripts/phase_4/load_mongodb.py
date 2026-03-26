@@ -7,6 +7,7 @@ from mongo_config import init_mongo_client
 
 # Initialize MongoDB client
 db = init_mongo_client()
+db.drop()  # Clear existing data in the database
 
 # read datasets
 games_df = pd.read_csv("data/clean/games.csv")
