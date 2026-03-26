@@ -49,3 +49,7 @@ Two example documents showing the full document structure with real data. Each g
   }
 }
 ```
+
+## Schema Justification
+
+There are a number of reasons we chose to embed everything in a single games collection. First, all four of our research questions require game data combined with player stats, reviews, or both. Since every query would otherwise require a $lookup, embedding allows us to group price_usd, genre, and player_stats fields in a single $group stage without $lookup. Additionally, all our data is 1:1, meaning each game has exactly one set of stats and one set of review scores. This allows us to sidestep the main problem with embedding like this: if the design is 1:many, embedding it all could make the document very large. We only have ~1600 games, and each document remains small because player stats and review summaries are compact, so embedding does not approach MongoDB's 16MB document size limit. This also gives us data locality. All fields for a game are stored together, and our aggregation pipelines stay simple ($match → $group), making them easier to implement and debug.
