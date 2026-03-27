@@ -18,7 +18,7 @@ price_tier_stage = {
                                 {"$lte": ["$price_usd", 9.99]},
                             ]
                         },
-                        "then": "Low ($0.01-$9.99)",
+                        "then": "Low Price ($0.01-$9.99)",
                     },
                     {
                         "case": {
@@ -27,9 +27,9 @@ price_tier_stage = {
                                 {"$lte": ["$price_usd", 29.99]},
                             ]
                         },
-                        "then": "Mid ($10-$29.99)",
+                        "then": "Medium Price ($10-$29.99)",
                     },
-                    {"case": {"$gte": ["$price_usd", 30.00]}, "then": "High ($30+)"},
+                    {"case": {"$gte": ["$price_usd", 30.00]}, "then": "High Price ($30+)"},
                 ]
             }
         }
