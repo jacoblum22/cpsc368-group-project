@@ -5,7 +5,7 @@ from mongo_config import init_mongo_client
 db = init_mongo_client()
 
 
-# Aggregation Pipeline: average critic and user score by genre and price tier
+# Aggregation Pipeline: median critic and user score by genre and price tier
 pipeline = [
     # stage 1: Create price tiers through addFields oeprator
     {
@@ -47,54 +47,122 @@ pipeline = [
     },
     # stage 2: assign price tier to each document via match operator
     {"$match": {"price_tier": {"$exists": True}}},
-    # stage 3: group by critic score and user score
+    # stage 3: sort the scores by order and extract median by dividing by 2
     {
-        "$group": {
-            "_id": {"genre": "$genre", "price_tier": "$price_tier"},
-            "avg_critic_score": {"$avg": "$review_summary.metascore"},
-            "avg_user_score": {"$avg": "$review_summary.user_score"},
-            "count": {"$sum": 1},
+        "$facet": {
+            "critic_stats": [
+                {
+                    "$sort": {
+                        "genre": 1,
+                        "price_tier": 1,
+                        "review_summary.metascore": 1
+                    }
+                },
+                {
+                    "$group": {
+                        "_id": {
+                            "genre": "$genre",
+                            "price_tier": "$price_tier"
+                        },
+                        "critic_scores": {"$push": "$review_summary.metascore"},
+                        "count": {"$sum": 1}
+                    }
+                },
+                {
+                    "$project": {
+                        "_id": 1,
+                        "count": 1,
+                        "median_critic_score": {
+                            "$arrayElemAt": [
+                                "$critic_scores",
+                                {
+                                    "$floor": {
+                                        "$divide": [
+                                            {"$size": "$critic_scores"},
+                                            2
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "user_stats": [
+                {
+                    "$sort": {
+                        "genre": 1,
+                        "price_tier": 1,
+                        "review_summary.user_score": 1
+                    }
+                },
+                {
+                    "$group": {
+                        "_id": {
+                            "genre": "$genre",
+                            "price_tier": "$price_tier"
+                        },
+                        "user_scores": {"$push": "$review_summary.user_score"}
+                    }
+                },
+                {
+                    "$project": {
+                        "_id": 1,
+                        "median_user_score": {
+                            "$arrayElemAt": [
+                                "$user_scores",
+                                {
+                                    "$floor": {
+                                        "$divide": [
+                                            {"$size": "$user_scores"},
+                                            2
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
         }
-    },
-    # stage 4: project the required fields for our visualization
-    {
-        "$project": {
-            "_id": 0,
-            "genre": "$_id.genre",
-            "price_tier": "$_id.price_tier",
-            "avg_critic_score": 1,
-            "avg_user_score": 1,
-            "count": 1,
-        }
-    },
+    }
 ]
 
-results = list(db.aggregate(pipeline))
+results = list(db.aggregate(pipeline))[0]
 
 #Map results to their respective dictionaries
+critic_results = results["critic_stats"]
+user_results = results["user_stats"]
+
 critic_scores = {}
 user_scores = {}
 
-for doc in results:
-    genre = doc["genre"]
-    price_tier = doc["price_tier"]
-    avg_critic_score = doc["avg_critic_score"]
-    avg_user_score = doc["avg_user_score"]
-
+for doc in critic_results:
+    genre = doc["_id"]["genre"]
+    price_tier = doc["_id"]["price_tier"]
+    median_critic_score = doc["median_critic_score"]
     if genre not in critic_scores:
         critic_scores[genre] = {}
+    
+    critic_scores[genre][price_tier] = median_critic_score
+
+for doc in user_results:
+    genre = doc["_id"]["genre"]
+    price_tier = doc["_id"]["price_tier"]
+    median_user_score = doc["median_user_score"]
+
     if genre not in user_scores:
         user_scores[genre] = {}
 
-    critic_scores[genre][price_tier] = avg_critic_score
-    user_scores[genre][price_tier] = avg_user_score
+    user_scores[genre][price_tier] = median_user_score
+
 
 #Convert dictionaries to dataframes for visualization
 critic_df = pd.DataFrame.from_dict(critic_scores, orient="index").fillna(0).reset_index().melt(
-    id_vars="index", var_name="price_tier", value_name="avg_critic_score"
+    id_vars="index", var_name="price_tier", value_name="median_critic_score"
     ).rename(columns={"index": "genre"})
 user_df = pd.DataFrame.from_dict(user_scores, orient="index").fillna(0).reset_index().melt(
-    id_vars="index", var_name="price_tier", value_name="avg_user_score"
+    id_vars="index", var_name="price_tier", value_name="median_user_score"
 ).rename(columns={"index": "genre"})
 
 tier_order = [
@@ -108,17 +176,17 @@ tier_order = [
 heatmap_critic = alt.Chart(critic_df).mark_rect().encode(
     x=alt.X("price_tier:N", title="Price Tier", sort=tier_order),
     y=alt.Y("genre:N", title="Genre"),
-    color=alt.Color("avg_critic_score:Q", title="Average Critic Score", scale=alt.Scale(scheme="viridis")),
-    tooltip=["genre", "price_tier", alt.Tooltip("avg_critic_score:Q", format=".2f")],
-).properties(title="Average Critic Score by Genre and Price Tier", width=350, height=300)
+    color=alt.Color("median_critic_score:Q", title="Median Critic Score", scale=alt.Scale(scheme="viridis")),
+    tooltip=["genre", "price_tier", alt.Tooltip("median_critic_score:Q", format=".2f")],
+).properties(title="Median Critic Score by Genre and Price Tier", width=350, height=300)
 
 #Heatmap 2: User Scores Heatmap
 heatmap_user = alt.Chart(user_df).mark_rect().encode(
     x=alt.X("price_tier:N", title="Price Tier", sort=tier_order),
     y=alt.Y("genre:N", title="Genre"),
-    color=alt.Color("avg_user_score:Q", title="Average User Score", scale=alt.Scale(scheme="viridis")),
-    tooltip=["genre", "price_tier", alt.Tooltip("avg_user_score:Q", format=".2f")],
-).properties(title="Average User Score by Genre and Price Tier", width=350, height=300)
+    color=alt.Color("median_user_score:Q", title="Median User Score", scale=alt.Scale(scheme="viridis")),
+    tooltip=["genre", "price_tier", alt.Tooltip("median_user_score:Q", format=".2f")],
+).properties(title="Median User Score by Genre and Price Tier", width=350, height=300)
 
 combined = alt.hconcat(heatmap_critic, heatmap_user).resolve_scale(color="independent")
 
