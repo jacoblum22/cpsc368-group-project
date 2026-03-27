@@ -1,5 +1,6 @@
-import pandas as pd
 import altair as alt
+import pandas as pd
+import matplotlib.pyplot as plt
 
 from mongo_config import init_mongo_client
 
@@ -18,7 +19,7 @@ price_tier_stage = {
                                 {"$lte": ["$price_usd", 9.99]},
                             ]
                         },
-                        "then": "Low Price ($0.01-$9.99)",
+                        "then": "Low ($0.01-$9.99)",
                     },
                     {
                         "case": {
@@ -27,9 +28,9 @@ price_tier_stage = {
                                 {"$lte": ["$price_usd", 29.99]},
                             ]
                         },
-                        "then": "Medium Price ($10-$29.99)",
+                        "then": "Mid ($10-$29.99)",
                     },
-                    {"case": {"$gte": ["$price_usd", 30.00]}, "then": "High Price ($30+)"},
+                    {"case": {"$gte": ["$price_usd", 30.00]}, "then": "High ($30+)"},
                 ]
             }
         }
@@ -115,8 +116,45 @@ rows = list(ccu_data.values())
 df = pd.DataFrame(rows)
 
 tier_order = ["Free", "Low ($0.01-$9.99)", "Mid ($10-$29.99)", "High ($30+)"]
+tiers_present = [t for t in tier_order if t in df["price_tier"].unique()]
 
-# Heatmap 1: Median CCU
+# One bar chart per price tier: Median CCU by genre
+plt.figure(figsize=(16, 10))
+for idx, tier in enumerate(tiers_present):
+    tier_data = df[df["price_tier"] == tier].sort_values("genre")
+    plt.subplot(2, 2, idx + 1)
+    plt.bar(tier_data["genre"], tier_data["median_ccu"])
+    plt.yscale("log")
+    plt.xticks(rotation=35, ha="right")
+    plt.ylabel("Median CCU")
+    plt.title(f"{tier}")
+plt.suptitle("Q1: Median CCU by Genre per Price Tier")
+plt.tight_layout()
+plt.savefig("../../figures/phase_4/q1_price_vs_engagement.png")
+plt.close()
+
+# Q1b — Playtime by price tier
+q1b = (
+    df.groupby("price_tier")
+    .apply(
+        lambda d: (d["median_playtime"] * d["game_count"]).sum() / d["game_count"].sum()
+    )
+    .reset_index(name="playtime")
+)
+q1b_tiers = [t for t in tier_order if t in q1b["price_tier"].values]
+playtimes = [
+    float(q1b[q1b["price_tier"] == t]["playtime"].values[0]) for t in q1b_tiers
+]
+
+plt.figure(figsize=(8, 5))
+plt.bar(q1b_tiers, playtimes)
+plt.ylabel("Weighted Median Avg Playtime (minutes)")
+plt.title("Q1b: Average Playtime by Price Tier")
+plt.tight_layout()
+plt.savefig("../../figures/phase_4/q1b_playtime_by_tier.png")
+plt.close()
+
+# Altair heatmaps (alternative visualization)
 heatmap_ccu = (
     alt.Chart(df)
     .mark_rect()
@@ -139,7 +177,6 @@ text_ccu = heatmap_ccu.mark_text(fontSize=11).encode(
 
 chart_ccu = heatmap_ccu + text_ccu
 
-# Heatmap 2: Median Playtime
 heatmap_pt = (
     alt.Chart(df)
     .mark_rect()
@@ -166,8 +203,5 @@ text_pt = heatmap_pt.mark_text(fontSize=11).encode(
 
 chart_pt = heatmap_pt + text_pt
 
-
 combined = alt.hconcat(chart_ccu, chart_pt).resolve_scale(color="independent")
-
-
-combined.save("figures/phase_4/q1_price_vs_engagement.png")
+combined.save("../../figures/phase_4/q1_heatmaps.png")
