@@ -170,4 +170,4 @@ chart_pt = heatmap_pt + text_pt
 combined = alt.hconcat(chart_ccu, chart_pt).resolve_scale(color="independent")
 
 
-combined.save("figures/phase_4/q1_price_vs_engagement.html")
+combined.save("figures/phase_4/q1_price_vs_engagement.png")

@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+import altair as alt
 
 from mongo_config import init_mongo_client
 
