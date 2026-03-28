@@ -2,17 +2,20 @@ import pymongo
 import pandas as pd
 import numpy as np
 import json
+from pathlib import Path
 
 from mongo_config import init_mongo_client
+
+DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "clean"
 
 # Initialize MongoDB client
 db = init_mongo_client()
 db.drop()  # Clear existing data in the database
 
 # read datasets
-games_df = pd.read_csv("data/clean/games.csv")
-player_stats_df = pd.read_csv("data/clean/player_stats.csv")
-reviews_df = pd.read_csv("data/clean/reviews.csv")
+games_df = pd.read_csv(DATA_DIR / "games.csv")
+player_stats_df = pd.read_csv(DATA_DIR / "player_stats.csv")
+reviews_df = pd.read_csv(DATA_DIR / "reviews.csv")
 
 # merge with app_id
 merged_df = games_df.merge(player_stats_df, on="app_id", how="left").merge(

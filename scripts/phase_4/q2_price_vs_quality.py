@@ -1,7 +1,9 @@
+from pathlib import Path
 import altair as alt
 import pandas as pd
 from mongo_config import init_mongo_client
 
+FIGURES_DIR = Path(__file__).resolve().parents[2] / "figures" / "phase_4"
 db = init_mongo_client()
 
 # Shared stage: assign price tiers (matching Q1 / Oracle labels)
@@ -192,4 +194,4 @@ heatmap_user = (
 
 combined = alt.hconcat(heatmap_critic, heatmap_user).resolve_scale(color="independent")
 
-combined.save("../../figures/phase_4/q2_price_vs_quality.png")
+combined.save(str(FIGURES_DIR / "q2_price_vs_quality.png"))

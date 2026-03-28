@@ -1,9 +1,11 @@
+from pathlib import Path
 import altair as alt
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from mongo_config import init_mongo_client
 
+FIGURES_DIR = Path(__file__).resolve().parents[2] / "figures" / "phase_4"
 db = init_mongo_client()
 
 # Shared stage: bin price_usd into 4 tiers
@@ -137,7 +139,7 @@ def make_q1_plots(df):
         ax.set_title(tier)
     fig.suptitle("Q1: Median CCU by Genre per Price Tier")
     plt.tight_layout()
-    plt.savefig("../../figures/phase_4/q1_price_vs_engagement.png")
+    plt.savefig(FIGURES_DIR / "q1_price_vs_engagement.png")
     plt.close()
 
     # Q1b — Median playtime by price tier
@@ -152,7 +154,7 @@ def make_q1_plots(df):
     plt.ylabel("Weighted Median Avg Playtime (minutes)")
     plt.title("Q1b: Average Playtime by Price Tier")
     plt.tight_layout()
-    plt.savefig("../../figures/phase_4/q1b_playtime_by_tier.png")
+    plt.savefig(FIGURES_DIR / "q1b_playtime_by_tier.png")
     plt.close()
 
     # Altair heatmaps (alternative visualization)
@@ -210,7 +212,7 @@ def make_q1_plots(df):
     chart_pt = heatmap_pt + text_pt
 
     combined = alt.hconcat(chart_ccu, chart_pt).resolve_scale(color="independent")
-    combined.save("../../figures/phase_4/q1_heatmaps.png")
+    combined.save(str(FIGURES_DIR / "q1_heatmaps.png"))
 
 
 def main():

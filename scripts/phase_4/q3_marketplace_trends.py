@@ -1,6 +1,8 @@
+from pathlib import Path
 from mongo_config import init_mongo_client
 import matplotlib.pyplot as plt
 
+FIGURES_DIR = Path(__file__).resolve().parents[2] / "figures" / "phase_4"
 db = init_mongo_client()
 
 # Pipeline 1: median price + total games + pct free
@@ -165,5 +167,5 @@ ax3.set_title("% Free-to-Play Games")
 
 fig.suptitle("Q3: Year-over-Year Marketplace Trends on Steam (2020-2024)", fontsize=13)
 plt.tight_layout()
-plt.savefig("../../figures/phase_4/q3_marketplace_trends.png")
+plt.savefig(FIGURES_DIR / "q3_marketplace_trends.png")
 print("\nSaved figure to figures/phase_4/q3_marketplace_trends.png")

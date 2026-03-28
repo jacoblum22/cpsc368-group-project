@@ -1,6 +1,8 @@
+from pathlib import Path
 from mongo_config import init_mongo_client
 import matplotlib.pyplot as plt
 
+FIGURES_DIR = Path(__file__).resolve().parents[2] / "figures" / "phase_4"
 db = init_mongo_client()
 
 # Pipeline 1: Group by metascore bin
@@ -121,5 +123,5 @@ plt.ylabel("Median CCU")
 plt.title("Q4: Score vs. Engagement")
 plt.legend()
 plt.tight_layout()
-plt.savefig("../../figures/phase_4/q4_score_engagement.png")
+plt.savefig(FIGURES_DIR / "q4_score_engagement.png")
 plt.close()
