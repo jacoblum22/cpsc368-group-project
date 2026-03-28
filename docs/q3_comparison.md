@@ -1,0 +1,5 @@
+# Q3: SQL vs. MongoDB Comparison
+
+Both versions answer the same question: how have Steam game prices, engagement, and the share of free-to-play titles changed from 2020 to 2024? The SQL query joins games with player_stats and computes all metrics in one query using Oracle's built-in MEDIAN(). MongoDB reads from a single embedded collection with no join, but requires four separate pipelines — one per metric — because each median needs its own pre-sort. Since MongoDB has no built-in MEDIAN(), each pipeline sorts before grouping, collects values into an array with $push, then picks the middle element with $arrayElemAt.
+
+The results are consistent across both systems. Total game counts, median prices, and % free match exactly for all five years. The CCU medians differ slightly in years with an even number of games (Oracle averages the two middle values; MongoDB picks one), but the overall trends are the same: median prices rose from $19.99 to $24.99 between 2022 and 2023, the share of free-to-play titles held steady at 2–5%, and CCU engagement grew steadily from 2020 to 2024.
