@@ -2,7 +2,7 @@ from pathlib import Path
 import pymongo
 
 # UPDATE THESE before running:
-MONGO_CWL = "tchan26"    # your UBC CWL
+MONGO_CWL = "tchan26"  # your UBC CWL
 MONGO_SNUM = "72432586"  # your UBC student number
 
 collection = "games"
