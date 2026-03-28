@@ -6,6 +6,7 @@ from mongo_config import init_mongo_client
 
 db = init_mongo_client()
 
+# Shared stage: bin price_usd into 4 tiers
 price_tier_stage = {
     "$addFields": {
         "price_tier": {
@@ -41,7 +42,7 @@ price_tier_stage = {
 ccu_pipeline = [
     price_tier_stage,
     {"$match": {"price_tier": {"$exists": True}}},
-    {"$sort": {"genre": 1, "price_tier": 1, "player_stats.ccu": 1}},
+    {"$sort": {"genre": 1, "price_tier": 1, "player_stats.ccu": 1}},  # sort for median
     {
         "$group": {
             "_id": {"genre": "$genre", "price_tier": "$price_tier"},
@@ -49,7 +50,7 @@ ccu_pipeline = [
             "count": {"$sum": 1},
         }
     },
-    {"$match": {"count": {"$gte": 10}}},
+    {"$match": {"count": {"$gte": 10}}},  # exclude small groups
     {
         "$project": {
             "median_ccu": {
@@ -68,7 +69,7 @@ ccu_pipeline = [
 playtime_pipeline = [
     price_tier_stage,
     {"$match": {"price_tier": {"$exists": True}}},
-    {"$sort": {"genre": 1, "price_tier": 1, "player_stats.avg_playtime_min": 1}},
+    {"$sort": {"genre": 1, "price_tier": 1, "player_stats.avg_playtime_min": 1}},  # sort for median
     {
         "$group": {
             "_id": {"genre": "$genre", "price_tier": "$price_tier"},
