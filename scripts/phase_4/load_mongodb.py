@@ -21,6 +21,7 @@ merged_df = games_df.merge(player_stats_df, on="app_id", how="left").merge(
 
 # merged_df.to_csv('merged.csv')
 
+# Build one document per game
 documents = []
 
 for idx, row in merged_df.iterrows():
@@ -33,7 +34,7 @@ for idx, row in merged_df.iterrows():
         "release_year": (
             int(row["release_year"]) if not pd.isna(row["release_year"]) else None
         ),
-        "player_stats": {
+        "player_stats": {  # embedded engagement data
             "ccu": int(row["ccu"]) if not pd.isna(row["ccu"]) else None,
             "ccu_peak": int(row["ccu_peak"]) if not pd.isna(row["ccu_peak"]) else None,
             "owners": row["owners"],
@@ -46,7 +47,7 @@ for idx, row in merged_df.iterrows():
                 int(row["ccu_at_1yr"]) if not pd.isna(row["ccu_at_1yr"]) else None
             ),
         },
-        "review_summary": {
+        "review_summary": {  # embedded review scores
             "metascore": (
                 float(row["metascore"]) if not pd.isna(row["metascore"]) else None
             ),
@@ -57,6 +58,7 @@ for idx, row in merged_df.iterrows():
     }
     documents.append(doc)
 
+# Bulk insert all documents
 if documents:
     db.insert_many(documents)
     print(f"Inserted {len(documents)} documents into the database.")

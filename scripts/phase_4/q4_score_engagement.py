@@ -95,9 +95,11 @@ user_pipeline = [
     {"$match": {"count": {"$gte": 5}}},
 ]
 
+# Run pipelines
 meta_results = list(db.aggregate(meta_pipeline))
 user_results = list(db.aggregate(user_pipeline))
 
+# Extract bins and median CCU for plotting
 meta_bins = []
 meta_ccus = []
 for doc in meta_results:
@@ -110,6 +112,7 @@ for doc in user_results:
     user_bins.append(doc["_id"])
     user_ccus.append(doc["median_ccu"])
 
+# Visualization: score vs median CCU at 1 year
 plt.plot(meta_bins, meta_ccus, label="Metascore")
 plt.plot(user_bins, user_ccus, label="User Score")
 plt.yscale("log")
