@@ -46,7 +46,6 @@ ccu_pipeline = [
         "$group": {
             "_id": {"genre": "$genre", "price_tier": "$price_tier"},
             "ccu_values": {"$push": "$player_stats.ccu"},
-            "mean_ccu": {"$avg": "$player_stats.ccu"},
             "count": {"$sum": 1},
         }
     },
@@ -59,7 +58,6 @@ ccu_pipeline = [
                     {"$floor": {"$divide": [{"$size": "$ccu_values"}, 2]}},
                 ]
             },
-            "mean_ccu": 1,
             "count": 1,
         }
     },
@@ -93,6 +91,7 @@ playtime_pipeline = [
     {"$sort": {"_id.genre": 1, "_id.price_tier": 1}},
 ]
 
+
 # run pipe and turn them into DF
 def get_q1_df(db):
     ccu_results = list(db.aggregate(ccu_pipeline))
@@ -105,7 +104,6 @@ def get_q1_df(db):
             "genre": doc["_id"]["genre"],
             "price_tier": doc["_id"]["price_tier"],
             "median_ccu": doc["median_ccu"],
-            "mean_ccu": round(doc["mean_ccu"], 1),
             "game_count": doc["count"],
         }
 
@@ -117,6 +115,7 @@ def get_q1_df(db):
     rows = list(ccu_data.values())
     df = pd.DataFrame(rows)
     return df
+
 
 # make all the Q1 plots from the df
 def make_q1_plots(df):
@@ -217,9 +216,11 @@ def make_q1_plots(df):
     combined = alt.hconcat(chart_ccu, chart_pt).resolve_scale(color="independent")
     combined.save("../../figures/phase_4/q1_heatmaps.png")
 
+
 def main():
     df = get_q1_df(db)
     make_q1_plots(df)
+
 
 if __name__ == "__main__":
     main()
