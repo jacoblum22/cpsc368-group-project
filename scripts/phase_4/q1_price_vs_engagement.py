@@ -69,7 +69,9 @@ ccu_pipeline = [
 playtime_pipeline = [
     price_tier_stage,
     {"$match": {"price_tier": {"$exists": True}}},
-    {"$sort": {"genre": 1, "price_tier": 1, "player_stats.avg_playtime_min": 1}},  # sort for median
+    {
+        "$sort": {"genre": 1, "price_tier": 1, "player_stats.avg_playtime_min": 1}
+    },  # sort for median
     {
         "$group": {
             "_id": {"genre": "$genre", "price_tier": "$price_tier"},
