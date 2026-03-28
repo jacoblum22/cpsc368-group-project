@@ -123,36 +123,29 @@ def make_q1_plots(df):
     tiers_present = [t for t in tier_order if t in df["price_tier"].unique()]
 
     # One bar chart per price tier: Median CCU by genre
-    plt.figure(figsize=(16, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(16, 10))
     for idx, tier in enumerate(tiers_present):
+        ax = axes[idx // 2][idx % 2]
         tier_data = df[df["price_tier"] == tier].sort_values("genre")
-        plt.subplot(2, 2, idx + 1)
-        plt.bar(tier_data["genre"], tier_data["median_ccu"])
-        plt.yscale("log")
-        plt.xticks(rotation=35, ha="right")
-        plt.ylabel("Median CCU")
-        plt.title(f"{tier}")
-    plt.suptitle("Q1: Median CCU by Genre per Price Tier")
+        ax.bar(tier_data["genre"], tier_data["median_ccu"])
+        ax.set_xticks(range(len(tier_data["genre"])))
+        ax.set_xticklabels(tier_data["genre"], rotation=35, ha="right")
+        ax.set_ylabel("Median CCU")
+        ax.set_title(tier)
+    fig.suptitle("Q1: Median CCU by Genre per Price Tier")
     plt.tight_layout()
     plt.savefig("../../figures/phase_4/q1_price_vs_engagement.png")
     plt.close()
 
-    # Q1b — Playtime by price tier (weighted median/avg)
-    q1b = (
-        df.groupby("price_tier")
-        .apply(
-            lambda d: (d["median_playtime"] * d["game_count"]).sum()
-            / d["game_count"].sum()
-        )
-        .reset_index(name="playtime")
-    )
-    q1b_tiers = [t for t in tier_order if t in q1b["price_tier"].values]
-    playtimes = [
-        float(q1b[q1b["price_tier"] == t]["playtime"].values[0]) for t in q1b_tiers
-    ]
+    # Q1b — Median playtime by price tier
+    playtimes = []
+    for tier in tiers_present:
+        tier_data = df[df["price_tier"] == tier]
+        weighted = (tier_data["median_playtime"] * tier_data["game_count"]).sum()
+        playtimes.append(weighted / tier_data["game_count"].sum())
 
     plt.figure(figsize=(8, 5))
-    plt.bar(q1b_tiers, playtimes)
+    plt.bar(tiers_present, playtimes)
     plt.ylabel("Weighted Median Avg Playtime (minutes)")
     plt.title("Q1b: Average Playtime by Price Tier")
     plt.tight_layout()
