@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    #vis.vega-embed {
+      width: 100%;
+      display: flex;
+    }
+
+    #vis.vega-embed details,
+    #vis.vega-embed details summary {
+      position: relative;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega@6"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-lite@6.1.0"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-embed@7"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"continuousWidth": 300, "continuousHeight": 300}}, "hconcat": [{"layer": [{"mark": {"type": "rect"}, "encoding": {"color": {"field": "median_ccu", "scale": {"scheme": "orangered"}, "title": "Median CCU", "type": "quantitative"}, "tooltip": [{"field": "genre", "type": "nominal"}, {"field": "price_tier", "type": "nominal"}, {"field": "median_ccu", "type": "quantitative"}, {"field": "game_count", "type": "quantitative"}], "x": {"field": "price_tier", "sort": ["Free", "Low ($0.01-$9.99)", "Mid ($10-$29.99)", "High ($30+)"], "title": "Price Tier", "type": "nominal"}, "y": {"field": "genre", "title": "Genre", "type": "nominal"}}, "title": "Q1: Median CCU by Price Tier & Genre (MongoDB)"}, {"mark": {"type": "text", "fontSize": 11}, "encoding": {"color": {"value": "black"}, "text": {"field": "median_ccu", "format": ".0f", "type": "quantitative"}, "tooltip": [{"field": "genre", "type": "nominal"}, {"field": "price_tier", "type": "nominal"}, {"field": "median_ccu", "type": "quantitative"}, {"field": "game_count", "type": "quantitative"}], "x": {"field": "price_tier", "sort": ["Free", "Low ($0.01-$9.99)", "Mid ($10-$29.99)", "High ($30+)"], "title": "Price Tier", "type": "nominal"}, "y": {"field": "genre", "title": "Genre", "type": "nominal"}}, "title": "Q1: Median CCU by Price Tier & Genre (MongoDB)"}], "height": 300, "width": 350}, {"layer": [{"mark": {"type": "rect"}, "encoding": {"color": {"field": "median_playtime", "scale": {"scheme": "tealblues"}, "title": "Median Playtime (min)", "type": "quantitative"}, "tooltip": [{"field": "genre", "type": "nominal"}, {"field": "price_tier", "type": "nominal"}, {"field": "median_playtime", "type": "quantitative"}, {"field": "game_count", "type": "quantitative"}], "x": {"field": "price_tier", "sort": ["Free", "Low ($0.01-$9.99)", "Mid ($10-$29.99)", "High ($30+)"], "title": "Price Tier", "type": "nominal"}, "y": {"field": "genre", "title": "Genre", "type": "nominal"}}, "title": "Q1: Median Playtime by Price Tier & Genre (MongoDB)"}, {"mark": {"type": "text", "fontSize": 11}, "encoding": {"color": {"value": "black"}, "text": {"field": "median_playtime", "format": ".0f", "type": "quantitative"}, "tooltip": [{"field": "genre", "type": "nominal"}, {"field": "price_tier", "type": "nominal"}, {"field": "median_playtime", "type": "quantitative"}, {"field": "game_count", "type": "quantitative"}], "x": {"field": "price_tier", "sort": ["Free", "Low ($0.01-$9.99)", "Mid ($10-$29.99)", "High ($30+)"], "title": "Price Tier", "type": "nominal"}, "y": {"field": "genre", "title": "Genre", "type": "nominal"}}, "title": "Q1: Median Playtime by Price Tier & Genre (MongoDB)"}], "height": 300, "width": 350}], "data": {"name": "data-ab90e6affe3ff654fe4efdba6da8e3bd"}, "resolve": {"scale": {"color": "independent"}}, "$schema": "https://vega.github.io/schema/vega-lite/v6.1.0.json", "datasets": {"data-ab90e6affe3ff654fe4efdba6da8e3bd": [{"genre": "Action", "price_tier": "Free", "median_ccu": 16, "median_playtime": 145.0, "mean_ccu": 9764.9, "game_count": 20}, {"genre": "Action", "price_tier": "High ($30+)", "median_ccu": 95, "median_playtime": 863.0, "mean_ccu": 1254.5, "game_count": 212}, {"genre": "Action", "price_tier": "Low ($0.01-$9.99)", "median_ccu": 4, "median_playtime": 195.0, "mean_ccu": 459.7, "game_count": 110}, {"genre": "Action", "price_tier": "Mid ($10-$29.99)", "median_ccu": 8, "median_playtime": 114.0, "mean_ccu": 158.2, "game_count": 472}, {"genre": "Adventure", "price_tier": "High ($30+)", "median_ccu": 46, "median_playtime": 457.0, "mean_ccu": 2139.2, "game_count": 37}, {"genre": "Adventure", "price_tier": "Low ($0.01-$9.99)", "median_ccu": 2, "median_playtime": 184.0, "mean_ccu": 27.4, "game_count": 75}, {"genre": "Adventure", "price_tier": "Mid ($10-$29.99)", "median_ccu": 5, "median_playtime": 417.0, "mean_ccu": 102.3, "game_count": 296}, {"genre": "Casual", "price_tier": "Low ($0.01-$9.99)", "median_ccu": 15, "median_playtime": 347.0, "mean_ccu": 137.2, "game_count": 12}, {"genre": "Casual", "price_tier": "Mid ($10-$29.99)", "median_ccu": 31, "median_playtime": 1075.0, "mean_ccu": 681.4, "game_count": 36}, {"genre": "Indie", "price_tier": "Mid ($10-$29.99)", "median_ccu": 23, "median_playtime": 412.0, "mean_ccu": 103.5, "game_count": 64}, {"genre": "MMO", "price_tier": "Free", "median_ccu": 354, "median_playtime": 1972.0, "mean_ccu": 7083.0, "game_count": 14}, {"genre": "RPG", "price_tier": "High ($30+)", "median_ccu": 42, "median_playtime": 2364.0, "mean_ccu": 603.6, "game_count": 34}, {"genre": "RPG", "price_tier": "Mid ($10-$29.99)", "median_ccu": 14, "median_playtime": 19.0, "mean_ccu": 1284.9, "game_count": 30}, {"genre": "Racing", "price_tier": "High ($30+)", "median_ccu": 170, "median_playtime": 1242.0, "mean_ccu": 1421.9, "game_count": 13}, {"genre": "Racing", "price_tier": "Low ($0.01-$9.99)", "median_ccu": 116, "median_playtime": 513.0, "mean_ccu": 122.1, "game_count": 12}, {"genre": "Racing", "price_tier": "Mid ($10-$29.99)", "median_ccu": 14, "median_playtime": 6734.0, "mean_ccu": 109.0, "game_count": 24}, {"genre": "Simulation", "price_tier": "High ($30+)", "median_ccu": 270, "median_playtime": 1268.0, "mean_ccu": 846.2, "game_count": 23}, {"genre": "Simulation", "price_tier": "Mid ($10-$29.99)", "median_ccu": 47, "median_playtime": 345.0, "mean_ccu": 364.4, "game_count": 21}, {"genre": "Sports", "price_tier": "High ($30+)", "median_ccu": 267, "median_playtime": 451.0, "mean_ccu": 7776.2, "game_count": 16}, {"genre": "Sports", "price_tier": "Mid ($10-$29.99)", "median_ccu": 24, "median_playtime": 2044.0, "mean_ccu": 71.7, "game_count": 17}, {"genre": "Strategy", "price_tier": "High ($30+)", "median_ccu": 116, "median_playtime": 1056.0, "mean_ccu": 309.2, "game_count": 12}, {"genre": "Strategy", "price_tier": "Mid ($10-$29.99)", "median_ccu": 44, "median_playtime": 869.0, "mean_ccu": 220.9, "game_count": 16}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>

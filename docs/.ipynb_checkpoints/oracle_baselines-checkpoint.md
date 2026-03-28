@@ -56,23 +56,7 @@ See also: `figures/phase_3/q1_price_vs_engagement.png` and `figures/phase_3/q1b_
 
 ### MongoDB Aggregation Pipeline
 
-**File:** `scripts/phase_4/q1_price_vs_engagement.py`, lines 9–94
-
-Two pipelines — one for median CCU, one for median playtime — both following the same structure:
-
-1. `$addFields` — Classify each game into a price tier (Free, Low, Mid, High) using `$switch` on `price_usd`
-2. `$match` — Filter out documents with no price tier
-3. `$sort` — Pre-sort by genre, price tier, and the target metric so the pushed arrays are already ordered
-4. `$group` — Group by `{genre, price_tier}`, push metric values into an array, compute `mean_ccu` and count
-5. `$match` — Keep only groups with at least 10 games (equivalent to Oracle's `HAVING COUNT(*) >= 10`)
-6. `$project` — Extract the median using `$arrayElemAt` with `$floor($size / 2)`
-7. `$sort` — Order output by genre and price tier
-
 ### Results Comparison
-
-Both versions answer the same question, and the trends are consistent. High ($30+) games lead median CCU in most genres, Low ($0.01–$9.99) games underperform across the board, and Free MMOs dominate their tier — all matching Oracle's findings.
-
-The main structural difference is that MongoDB needs no join since `player_stats` is embedded in each game document. The main computational difference is median: Oracle has a built-in `MEDIAN()`, while MongoDB requires pre-sorting and picking the middle array element with `$arrayElemAt`. This approximation causes small numeric differences between phases (e.g. Free/Action median CCU: 12.5 in Oracle vs. 16 in MongoDB), but the overall patterns are the same.
 
 ## Q2
 
@@ -224,25 +208,4 @@ See also: `figures/phase_3/q4_score_vs_engagement.png`
 
 ### MongoDB Aggregation Pipeline
 
-**File:** `scripts/phase_4/q4_score_engagement.py`, lines 7–96
-
-Two separate pipelines (one for metascore, one for user score), each following the same structure:
-
-1. `$match` — Filter out games where `ccu_at_1yr` is null or 0, and where metascore or user_score is null
-2. `$addFields` — Convert the score to a 0–10 scale by dividing by 10 (`metascore_10` or `user_score_10`)
-3. `$addFields` — Bin scores into 0.5-unit intervals using `$floor(score / 0.5) * 0.5`
-4. `$sort` — Sort by bin and then by CCU (so the `$push` in the next stage produces a sorted array)
-5. `$group` — Group by score bin, push all `ccu_at_1yr` values into an array, count documents
-6. `$sort` — Sort output by bin
-7. `$project` — Extract the median CCU by picking the middle element of the sorted array with `$arrayElemAt`
-8. `$match` — Keep only bins with at least 5 games
-
 ### Results Comparison
-
-Both versions answer the same question: how do review scores relate to player engagement (CCU at 1 year)? Oracle joins three tables and fetches raw rows, then bins and computes medians in Python. MongoDB reads from one embedded collection with no joins needed and does the binning directly in the pipeline.
-
-The main difference is median calculation. Oracle has a built-in `MEDIAN()` function. MongoDB does not provide a simple built-in median in our environment, so we sort before grouping, collect CCU values into an array with `$push`, and extract the middle element with `$arrayElemAt`. This approximates the median by selecting the middle element after sorting, which may differ slightly from Oracle's exact median for groups with an even number of games.
-
-The results show consistent trends across both implementations. Higher review scores correlate with higher engagement in both versions. The metascore line climbs steadily; the user score line is noisier, with a spike at the 2.5 bin from review-bombed AAA titles (Diablo IV, EA FC 24, Battlefield 2042). Bins with fewer than 5 games are filtered out.
-
-The MongoDB pipeline is longer than the SQL query itself, but it handles binning and median computation that the Oracle version offloads to Python. So total code is comparable — MongoDB just pushes more work into the database. Overall, both approaches produce comparable analytical insights despite the differences in how the query and processing are split.
